@@ -26,17 +26,18 @@ router.post('/topics', async (context) => {
         locale: Joi.string().min(1).max(5)
     }); 
     const { value, error } = schema.validate({ name: name,  author: author, locale: locale});
-    if(!error){
-        const newTopic = new Topic({ name, author, locale })
-        const topic = await newTopic.save().catch(e => {
-            console.error(e);
-        })
-        context.status = 400
-        context.body = topic
-    } else {
-        context.status = 201
+
+    if(error){
+        context.status = 400;
         context.body = error
+        return;
     }
+
+    const newTopic = new Topic({ name, author, locale })
+    const topic = await newTopic.save()
+
+    context.status = 201
+    context.body = topic
 
     return;
 });
@@ -65,17 +66,17 @@ router.put('/topics/:id', async (context) => {
     }); 
     const { value, error } = schema.validate({ name: name,  author: author, locale: locale});
 
-    if(!error){
-        const topic = await Topic.findOneAndUpdate({ _id: _id }, { name })
-        .catch(e => {
-            console.error(e);
-        });
-        context.status = 400
-        context.body = topic
-    } else {
-        context.status = 201
+    if(error){
+        context.status = 400;
         context.body = error
+        return;
     }
+
+
+    const topic = await Topic.findOneAndUpdate({ _id: _id }, { name })
+    
+    context.status = 400
+    context.body = topic
     return;
 })
 
